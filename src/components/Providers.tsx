@@ -12,7 +12,13 @@ type ProvidersProps = {
 export default function Providers({ children }: ProvidersProps) {
   const [client] = useState(() => createQueryClient());
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      enableColorScheme={false}
+      disableTransitionOnChange
+    >
       <QueryClientProvider client={client}>{children}</QueryClientProvider>
     </ThemeProvider>
   );
