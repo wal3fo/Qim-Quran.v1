@@ -10,6 +10,7 @@ import DailyAyahNotifier from "@/components/DailyAyahNotifier";
 import ReadingModeClass from "@/components/ReadingModeClass";
 import HighContrastClass from "@/components/HighContrastClass";
 import FontScaleClass from "@/components/FontScaleClass";
+import { env } from "@/lib/env";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,7 @@ const arabic = Noto_Naskh_Arabic({
 export const metadata: Metadata = {
   title: "Qim Quran",
   description: "A modern Quran web application with translations and recitations.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://example.com"),
+  metadataBase: new URL(env.siteUrl),
   alternates: {
     canonical: "/",
   },
