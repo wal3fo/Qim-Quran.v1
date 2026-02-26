@@ -23,10 +23,10 @@ export default async function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-12 px-4 py-12 sm:px-6">
-      <section className="rounded-3xl border border-emerald-200/50 bg-emerald-50 p-8 dark:border-emerald-900/40 dark:bg-emerald-900/20">
+      <section className="rounded-3xl border border-primary-200/50 bg-primary-50 p-8 dark:border-primary-900/40 dark:bg-primary-900/20">
         <div className="flex flex-col gap-6">
           <div>
-            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-300">
+            <p className="text-sm font-semibold text-primary-600 dark:text-primary-300">
               Ayah of the day
             </p>
             <h1 className="mt-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
@@ -39,13 +39,13 @@ export default async function Home() {
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/surah/${selectedSurah.number}`}
-              className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white"
+              className="rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white"
             >
               Read Surah
             </Link>
             <Link
               href="/search"
-              className="rounded-full border border-emerald-600 px-4 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-200"
+              className="rounded-full border border-primary-600 px-4 py-2 text-xs font-semibold text-primary-700 dark:text-primary-200"
             >
               Search Quran
             </Link>
@@ -58,13 +58,13 @@ export default async function Home() {
         <div className="rounded-2xl border border-zinc-200 p-6 dark:border-zinc-800">
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Quick navigation</h2>
           <div className="mt-4 grid gap-3 text-sm">
-            <Link href="/surah" className="text-emerald-700 dark:text-emerald-300">
+            <Link href="/surah" className="text-primary-700 dark:text-primary-300">
               Browse Surahs
             </Link>
-            <Link href="/juz" className="text-emerald-700 dark:text-emerald-300">
+            <Link href="/juz" className="text-primary-700 dark:text-primary-300">
               Explore Juz
             </Link>
-            <Link href="/editions" className="text-emerald-700 dark:text-emerald-300">
+            <Link href="/editions" className="text-primary-700 dark:text-primary-300">
               Editions & Translations
             </Link>
           </div>

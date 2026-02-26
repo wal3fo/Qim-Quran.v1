@@ -18,7 +18,7 @@ export default function ReadingProgressSummary() {
       </p>
       <div className="mt-4 h-2 w-full rounded-full bg-zinc-200 dark:bg-zinc-800">
         <div
-          className="h-2 rounded-full bg-emerald-500"
+          className="h-2 rounded-full bg-primary-500"
           style={{ width: `${Math.min(100, Math.max(0, average))}%` }}
         />
       </div>

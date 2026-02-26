@@ -9,7 +9,7 @@ export default function DailyAyahToggle() {
     <button
       type="button"
       onClick={() => setDailyNotifications(!enabled)}
-      className="rounded-full border border-emerald-600 px-4 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-200"
+      className="rounded-full border border-primary-600 px-4 py-2 text-xs font-semibold text-primary-700 dark:text-primary-200"
     >
       {enabled ? "Disable Daily Ayah" : "Enable Daily Ayah"}
     </button>

@@ -15,7 +15,7 @@ export default function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(nextTheme)}
-      className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-emerald-500 hover:text-emerald-700 dark:border-zinc-700 dark:text-zinc-200"
+      className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-primary-500 hover:text-primary-700 dark:border-zinc-700 dark:text-zinc-200"
       aria-label="Toggle theme"
     >
       {theme === "dark" ? "Dark" : "Light"}
