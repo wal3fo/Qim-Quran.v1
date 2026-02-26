@@ -1,0 +1,158 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import AyahModal from "@/components/AyahModal";
+import { useBookmarkStore } from "@/store/useBookmarkStore";
+import { usePlayerStore } from "@/store/usePlayerStore";
+import { useReadingProgressStore } from "@/store/useReadingProgressStore";
+import type { Ayah } from "@/types/quran";
+import { getAyah } from "@/services/quranApi";
+import { formatReference } from "@/utils/quran";
+
+type Props = {
+  surahNumber: number;
+  ayahs: Ayah[];
+  translations?: string[];
+  tafsir?: string[];
+};
+
+export default function AyahList({ surahNumber, ayahs, translations, tafsir }: Props) {
+  const setQueue = usePlayerStore((state) => state.setQueue);
+  const currentIndex = usePlayerStore((state) => state.currentIndex);
+  const queue = usePlayerStore((state) => state.queue);
+  const addBookmark = useBookmarkStore((state) => state.addBookmark);
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
+  const isBookmarked = useBookmarkStore((state) => state.isBookmarked);
+  const setLastRead = useReadingProgressStore((state) => state.setLastRead);
+  const addHistory = useReadingProgressStore((state) => state.addHistory);
+  const setCompletion = useReadingProgressStore((state) => state.setCompletion);
+  const [selectedReference, setSelectedReference] = useState<string | null>(null);
+
+  const { data: selectedAyah } = useQuery({
+    queryKey: ["ayah-detail", selectedReference],
+    queryFn: () => getAyah(selectedReference ?? ""),
+    enabled: Boolean(selectedReference),
+  });
+
+  const playerQueue = useMemo(
+    () =>
+      ayahs.map((ayah) => ({
+        reference: formatReference(surahNumber, ayah.numberInSurah),
+        surahNumber,
+        ayahNumber: ayah.numberInSurah,
+        text: ayah.text,
+        audioUrl: ayah.audio,
+      })),
+    [ayahs, surahNumber],
+  );
+
+  const handlePlayAll = () => setQueue(playerQueue, 0);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Ayahs</h2>
+        <button
+          type="button"
+          onClick={handlePlayAll}
+          className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white"
+        >
+          Play All
+        </button>
+      </div>
+      <div className="space-y-4">
+        {ayahs.map((ayah, index) => {
+          const reference = formatReference(surahNumber, ayah.numberInSurah);
+          const active = queue[currentIndex]?.reference === reference;
+          const bookmarked = isBookmarked(reference);
+          return (
+            <div
+              key={reference}
+              className={`rounded-2xl border p-4 ${
+                active
+                  ? "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-900/20"
+                  : "border-zinc-200 dark:border-zinc-800"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 space-y-3">
+                  <p className="arabic-text text-2xl leading-relaxed text-zinc-900 dark:text-zinc-100">
+                    {ayah.text}
+                  </p>
+                  {translations?.[index] && (
+                    <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                      {translations[index]}
+                    </p>
+                  )}
+                  {tafsir?.[index] && (
+                    <p className="rounded-xl bg-zinc-50 p-3 text-sm leading-6 text-zinc-600 dark:bg-zinc-900 dark:text-zinc-300">
+                      {tafsir[index]}
+                    </p>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <span className="text-xs text-zinc-500">Ayah {ayah.numberInSurah}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQueue(playerQueue, index);
+                      const entry = {
+                        reference,
+                        surahNumber,
+                        ayahNumber: ayah.numberInSurah,
+                        timestamp: new Date().toISOString(),
+                      };
+                      setLastRead(entry);
+                      addHistory(entry);
+                      setCompletion(surahNumber, Math.round(((index + 1) / ayahs.length) * 100));
+                    }}
+                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+                  >
+                    Play
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      bookmarked
+                        ? removeBookmark(reference)
+                        : addBookmark({
+                            reference,
+                            surahNumber,
+                            ayahNumber: ayah.numberInSurah,
+                            text: ayah.text,
+                            createdAt: new Date().toISOString(),
+                          })
+                    }
+                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+                  >
+                    {bookmarked ? "Bookmarked" : "Bookmark"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(ayah.text)}
+                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+                  >
+                    Copy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReference(reference)}
+                    className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+                  >
+                    Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <AyahModal
+        open={Boolean(selectedReference)}
+        onClose={() => setSelectedReference(null)}
+        ayah={selectedAyah}
+      />
+    </div>
+  );
+}

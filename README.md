@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Qim Quran
+
+Qim Quran is a production-ready Quran web application built with Next.js App Router and TypeScript. It integrates the full alquran.cloud API to deliver a fast, accessible, and mobile-first reading and listening experience.
+
+## Features
+
+- Full alquran.cloud API coverage (Surahs, Ayahs, Juz, Editions, Audio, Search, Meta)
+- Strongly typed API layer with retry logic and caching
+- Quran reading with translation toggles and audio playback
+- Persistent audio player with repeat and speed controls
+- Bookmarks, reading progress, and recent history
+- Editions and reciters discovery
+- SEO-ready metadata, sitemap, and robots
+- PWA manifest and offline cache
+- Dark/light theme support and multilingual UI toggle
+
+## Tech Stack
+
+- Next.js App Router (TypeScript strict)
+- Tailwind CSS
+- Zustand (state)
+- TanStack React Query (data fetching)
+- React Hook Form (forms)
+- Native HTML5 audio
+- ESLint + Prettier
+
+## Folder Structure
+
+```
+/app
+  /surah
+  /juz
+  /search
+  /editions
+  /reciters
+/components
+/services
+/store
+/hooks
+/lib
+/types
+/utils
+/public
+```
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Set a public base URL for metadata and sitemap:
 
-## Learn More
+```
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push the repository to GitHub.
+2. Import the project in Vercel.
+3. Add the NEXT_PUBLIC_SITE_URL environment variable.
+4. Deploy with the default Next.js build settings.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+- npm run dev
+- npm run build
+- npm run start
+- npm run lint
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Accessibility
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The UI is keyboard navigable with semantic components and high-contrast friendly colors. Arabic content uses a dedicated font family to improve readability.
+
+## API Usage
+
+All endpoints are centralized in `src/services/quranApi.ts` with typed responses and error handling. The layer supports caching and retry logic for production resilience.
