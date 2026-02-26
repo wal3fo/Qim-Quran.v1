@@ -1,4 +1,5 @@
 import type {
+  Ayah,
   ApiResponse,
   AudioSurah,
   AyahReferenceData,
@@ -18,6 +19,19 @@ const VALID_JUZ_MIN = 1;
 const VALID_JUZ_MAX = 30;
 const VALID_EDITION_TYPES = ["translation", "tafsir", "quran", "transliteration", "recitation"] as const;
 const VALID_FORMATS = ["text", "audio"] as const;
+
+const normalizeAudioUrl = (url?: string | null) => {
+  if (!url) {
+    return url ?? undefined;
+  }
+  return url.startsWith("http://") ? url.replace("http://", "https://") : url;
+};
+
+const normalizeAyahAudio = (ayah: Ayah): Ayah => ({
+  ...ayah,
+  audio: normalizeAudioUrl(ayah.audio) ?? ayah.audio,
+  audioSecondary: ayah.audioSecondary?.map((audio) => normalizeAudioUrl(audio) ?? audio),
+});
 
 const assertSurahNumber = (number: number) => {
   if (!Number.isInteger(number) || number < VALID_SURAH_MIN || number > VALID_SURAH_MAX) {
@@ -179,7 +193,10 @@ export const getSurah = (number: number, options?: RequestOptions) => {
 export const getSurahByEdition = (number: number, edition: string, options?: RequestOptions) => {
   assertSurahNumber(number);
   assertEdition(edition);
-  return request<SurahDetail>(`/surah/${number}/${edition}`, options);
+  return request<SurahDetail>(`/surah/${number}/${edition}`, options).then((surah) => ({
+    ...surah,
+    ayahs: surah.ayahs.map(normalizeAyahAudio),
+  }));
 };
 
 export const getSurahEditions = (number: number, options?: RequestOptions) => {
@@ -205,13 +222,19 @@ export const getAyahEditions = (reference: string, options?: RequestOptions) => 
 
 export const getJuz = (number: number, options?: RequestOptions) => {
   assertJuzNumber(number);
-  return request<JuzData>(`/juz/${number}`, options);
+  return request<JuzData>(`/juz/${number}`, options).then((juz) => ({
+    ...juz,
+    ayahs: juz.ayahs.map(normalizeAyahAudio),
+  }));
 };
 
 export const getJuzByEdition = (number: number, edition: string, options?: RequestOptions) => {
   assertJuzNumber(number);
   assertEdition(edition);
-  return request<JuzData>(`/juz/${number}/${edition}`, options);
+  return request<JuzData>(`/juz/${number}/${edition}`, options).then((juz) => ({
+    ...juz,
+    ayahs: juz.ayahs.map(normalizeAyahAudio),
+  }));
 };
 
 export const getJuzEditions = (number: number, options?: RequestOptions) => {
@@ -243,10 +266,16 @@ export const getAudio = (edition: string, reference: string | number, options?: 
   assertEdition(edition);
   if (typeof reference === "number") {
     assertSurahNumber(reference);
-    return request<AudioSurah>(`/audio/${edition}/${reference}`, options);
+    return request<AudioSurah>(`/audio/${edition}/${reference}`, options).then((audio) => ({
+      ...audio,
+      audio: normalizeAudioUrl(audio.audio) ?? audio.audio,
+    }));
   }
   assertAyahReference(reference);
-  return request<AudioSurah>(`/audio/${edition}/${reference}`, options);
+  return request<AudioSurah>(`/audio/${edition}/${reference}`, options).then((audio) => ({
+    ...audio,
+    audio: normalizeAudioUrl(audio.audio) ?? audio.audio,
+  }));
 };
 
 export const searchQuran = (
