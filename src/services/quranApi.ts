@@ -71,6 +71,10 @@ type RequestOptions = RequestInit & {
   cacheTtl?: number;
   revalidate?: number;
   rateLimitKey?: string;
+  next?: {
+    revalidate?: number | false;
+    tags?: string[];
+  };
 };
 
 type CacheEntry<T> = {
@@ -128,12 +132,12 @@ const request = async <T>(path: string, options: RequestOptions = {}): Promise<T
     const { cacheTtl, revalidate, rateLimitKey, ...fetchOptions } = options;
     const headers = new Headers(fetchOptions.headers);
     headers.set("Accept", "application/json");
-    const finalOptions: RequestInit & { next?: { revalidate?: number } } = {
+    const finalOptions: RequestInit & { next?: NextFetchRequestConfig } = {
       ...fetchOptions,
       headers,
     };
     if (revalidate !== undefined) {
-      finalOptions.next = { revalidate };
+      finalOptions.next = { ...(finalOptions.next ?? {}), revalidate };
     }
     let attempt = 0;
     let lastError: unknown;
