@@ -132,7 +132,7 @@ const request = async <T>(path: string, options: RequestOptions = {}): Promise<T
     const { cacheTtl, revalidate, rateLimitKey, ...fetchOptions } = options;
     const headers = new Headers(fetchOptions.headers);
     headers.set("Accept", "application/json");
-    const finalOptions: RequestInit & { next?: NextFetchRequestConfig } = {
+    const finalOptions: RequestInit & { next?: RequestOptions["next"] } = {
       ...fetchOptions,
       headers,
     };
