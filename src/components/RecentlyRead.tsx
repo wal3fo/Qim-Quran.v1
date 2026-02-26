@@ -13,7 +13,7 @@ export default function RecentlyRead() {
       {history.slice(0, 5).map((entry) => (
         <li key={`${entry.reference}-${entry.timestamp}`}>
           <Link
-            className="text-sm font-medium text-emerald-700 hover:text-emerald-900 dark:text-emerald-300"
+            className="text-sm font-medium text-primary-700 hover:text-primary-900 dark:text-primary-300"
             href={`/surah/${entry.surahNumber}`}
           >
             Surah {entry.surahNumber}, Ayah {entry.ayahNumber}

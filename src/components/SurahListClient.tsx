@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { SurahSummary } from "@/types/quran";
 import { usePreferencesStore } from "@/store/usePreferencesStore";
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { getAudio } from "@/services/quranApi";
 
 type Props = {
   surahs: SurahSummary[];
@@ -45,7 +46,7 @@ export default function SurahListClient({ surahs }: Props) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search surah name or number"
-          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm focus:border-emerald-500 focus:outline-none dark:border-zinc-800 dark:bg-black"
+          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm focus:border-primary-500 focus:outline-none dark:border-zinc-800 dark:bg-black"
         />
         <select
           value={revelationType}
@@ -61,7 +62,7 @@ export default function SurahListClient({ surahs }: Props) {
         {paged.map((surah) => (
           <div
             key={surah.number}
-            className="rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-emerald-500 dark:border-zinc-800 dark:bg-zinc-950"
+            className="rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-primary-500 dark:border-zinc-800 dark:bg-zinc-950"
           >
             <div className="flex items-center justify-between">
               <Link
@@ -73,27 +74,32 @@ export default function SurahListClient({ surahs }: Props) {
               <span className="text-sm text-zinc-500">{surah.number}</span>
             </div>
             <p className="mt-2 text-sm text-zinc-500">{surah.englishNameTranslation}</p>
-            <div className="mt-3 flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-300">
+            <div className="mt-3 flex items-center justify-between text-xs text-primary-600 dark:text-primary-300">
               <span>
                 {surah.revelationType} • {surah.numberOfAyahs} Ayahs
               </span>
               <button
                 type="button"
-                onClick={() =>
-                  setQueue(
-                    [
-                      {
-                        reference: `Surah ${surah.number}`,
-                        surahNumber: surah.number,
-                        ayahNumber: 1,
-                        text: surah.englishName,
-                        audioUrl: `https://cdn.islamic.network/quran/audio-surah/128/${recitationEdition}/${surah.number}.mp3`,
-                      },
-                    ],
-                    0,
-                  )
-                }
-                className="rounded-full border border-emerald-500 px-3 py-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-200"
+                onClick={async () => {
+                  try {
+                    const audio = await getAudio(recitationEdition, surah.number);
+                    setQueue(
+                      [
+                        {
+                          reference: `Surah ${surah.number}`,
+                          surahNumber: surah.number,
+                          ayahNumber: 1,
+                          text: surah.englishName,
+                          audioUrl: audio.audio,
+                        },
+                      ],
+                      0,
+                    );
+                  } catch {
+                    return;
+                  }
+                }}
+                className="rounded-full border border-primary-500 px-3 py-1 text-[10px] font-semibold text-primary-700 dark:text-primary-200"
               >
                 Quick Play
               </button>

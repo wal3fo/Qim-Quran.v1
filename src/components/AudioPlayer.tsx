@@ -61,7 +61,7 @@ export default function AudioPlayer() {
           <button
             type="button"
             onClick={() => setPlaying(!isPlaying)}
-            className="rounded-full bg-emerald-600 px-4 py-1 text-xs font-semibold text-white"
+            className="rounded-full bg-primary-600 px-4 py-1 text-xs font-semibold text-white"
           >
             {isPlaying ? "Pause" : "Play"}
           </button>

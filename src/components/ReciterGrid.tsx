@@ -1,6 +1,7 @@
 "use client";
 
 import { usePlayerStore } from "@/store/usePlayerStore";
+import { getAudio } from "@/services/quranApi";
 import type { Edition } from "@/types/quran";
 
 type Props = {
@@ -22,20 +23,25 @@ export default function ReciterGrid({ reciters }: Props) {
           <p className="text-sm text-zinc-500">{reciter.language.toUpperCase()}</p>
           <button
             type="button"
-            onClick={() =>
-              setQueue(
-                [
-                  {
-                    reference: "Sample",
-                    surahNumber: 1,
-                    ayahNumber: 1,
-                    text: "Sample Recitation",
-                    audioUrl: `https://cdn.islamic.network/quran/audio-surah/128/${reciter.identifier}/1.mp3`,
-                  },
-                ],
-                0,
-              )
-            }
+            onClick={async () => {
+              try {
+                const audio = await getAudio(reciter.identifier, 1);
+                setQueue(
+                  [
+                    {
+                      reference: "Sample",
+                      surahNumber: 1,
+                      ayahNumber: 1,
+                      text: "Sample Recitation",
+                      audioUrl: audio.audio,
+                    },
+                  ],
+                  0,
+                );
+              } catch {
+                return;
+              }
+            }}
             className="mt-3 rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
           >
             Play Sample

@@ -38,7 +38,7 @@ export default async function SurahDetailPage({ params }: Props) {
         }}
       />
       <header className="space-y-2">
-        <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-300">
+        <p className="text-sm font-semibold text-primary-600 dark:text-primary-300">
           Surah {surah.number}
         </p>
         <h1 className="text-3xl font-semibold text-zinc-900 dark:text-zinc-100">

@@ -44,7 +44,7 @@ export interface Edition {
   name: string;
   englishName: string;
   format: "text" | "audio";
-  type: "quran" | "translation" | "tafsir" | "transliteration" | "audio";
+  type: "quran" | "translation" | "tafsir" | "transliteration" | "recitation";
   direction?: "rtl" | "ltr";
 }
 

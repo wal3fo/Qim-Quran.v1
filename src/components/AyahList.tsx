@@ -56,7 +56,7 @@ export default function AyahList({ surahNumber, ayahs, translations, tafsir }: P
         <button
           type="button"
           onClick={handlePlayAll}
-          className="rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white"
+          className="rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white"
         >
           Play All
         </button>
@@ -71,7 +71,7 @@ export default function AyahList({ surahNumber, ayahs, translations, tafsir }: P
               key={reference}
               className={`rounded-2xl border p-4 ${
                 active
-                  ? "border-emerald-500 bg-emerald-50/70 dark:bg-emerald-900/20"
+                  ? "border-primary-500 bg-primary-50/70 dark:bg-primary-900/20"
                   : "border-zinc-200 dark:border-zinc-800"
               }`}
             >

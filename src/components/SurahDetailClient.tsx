@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import type { Ayah, SurahDetail } from "@/types/quran";
-import { getAudioSurah, getSurahByEdition } from "@/services/quranApi";
+import { getAudio, getSurahByEdition } from "@/services/quranApi";
 import { usePreferencesStore } from "@/store/usePreferencesStore";
 import AyahList from "@/components/AyahList";
 import { usePlayerStore } from "@/store/usePlayerStore";
@@ -65,7 +65,7 @@ export default function SurahDetailClient({ surah }: Props) {
 
   const { data: fullSurahAudio } = useQuery({
     queryKey: ["surah-full-audio", surah.number, recitationEdition],
-    queryFn: () => getAudioSurah(recitationEdition, surah.number),
+    queryFn: () => getAudio(recitationEdition, surah.number),
   });
 
   const translations = showTranslation
@@ -110,13 +110,13 @@ export default function SurahDetailClient({ surah }: Props) {
                   0,
                 )
               }
-              className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white"
+              className="rounded-full bg-primary-600 px-3 py-1 text-xs font-semibold text-white"
             >
               Play Full Surah
             </button>
             <a
               href={fullSurahAudio.audio}
-              className="rounded-full border border-emerald-500 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-200"
+              className="rounded-full border border-primary-500 px-3 py-1 text-xs font-semibold text-primary-700 dark:text-primary-200"
               download
             >
               Download Audio
@@ -143,7 +143,7 @@ export default function SurahDetailClient({ surah }: Props) {
             );
             setOfflineSaved(true);
           }}
-          className="rounded-full border border-emerald-500 px-3 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-200"
+          className="rounded-full border border-primary-500 px-3 py-1 text-xs font-semibold text-primary-700 dark:text-primary-200"
         >
           {offlineSaved ? "Remove Offline" : "Save Offline"}
         </button>

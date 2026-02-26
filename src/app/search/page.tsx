@@ -92,7 +92,7 @@ export default function SearchPage() {
             <p className="mt-2 text-sm leading-6 text-zinc-700 dark:text-zinc-300">
               {match.text.split(new RegExp(`(${normalizedKeyword})`, "gi")).map((part, index) =>
                 part.toLowerCase() === normalizedKeyword.toLowerCase() ? (
-                  <span key={index} className="rounded bg-emerald-100 px-1 text-emerald-800">
+                  <span key={index} className="rounded bg-primary-100 px-1 text-primary-800">
                     {part}
                   </span>
                 ) : (
