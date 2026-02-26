@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getSurah } from "@/services/quranApi";
+import { getSurah, getSurahList } from "@/services/quranApi";
 import SurahDetailClient from "@/components/SurahDetailClient";
 import SeoJsonLd from "@/components/SeoJsonLd";
 
@@ -7,9 +7,14 @@ type Props = {
   params: { number: string };
 };
 
+export async function generateStaticParams() {
+  const surahs = await getSurahList({ revalidate: 86400 });
+  return surahs.map((surah) => ({ number: String(surah.number) }));
+}
+
 export async function generateMetadata({ params }: Props) {
   const number = Number(params.number);
-  if (Number.isNaN(number)) {
+  if (!Number.isFinite(number)) {
     return { title: "Surah" };
   }
   const surah = await getSurah(number, { revalidate: 86400 });
@@ -23,7 +28,7 @@ export const revalidate = 3600;
 
 export default async function SurahDetailPage({ params }: Props) {
   const number = Number(params.number);
-  if (Number.isNaN(number)) {
+  if (!Number.isFinite(number)) {
     notFound();
   }
   const surah = await getSurah(number, { revalidate: 3600 });
