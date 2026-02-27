@@ -11,6 +11,7 @@ export const contentType = "image/png";
 type Params = Promise<{ reference: string }>;
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export default async function OpenGraphImage({ params }: { params: Params }) {
   const { reference } = await params;
