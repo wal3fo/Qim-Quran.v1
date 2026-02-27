@@ -4,6 +4,8 @@ import RecentlyRead from "@/components/RecentlyRead";
 import DailyAyahToggle from "@/components/DailyAyahToggle";
 import ReadingProgressSummary from "@/components/ReadingProgressSummary";
 
+export const dynamic = "force-dynamic";
+
 const getDaySeed = () => {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -111,4 +113,4 @@ export default async function Home() {
   );
 }
 
-export const revalidate = 86400;
+ 

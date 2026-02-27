@@ -6,6 +6,8 @@ export const metadata = {
   description: "Browse Quran editions, translations, and tafsir sources.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function EditionsPage() {
   const editions = await getEditions({ revalidate: 86400 });
   return (

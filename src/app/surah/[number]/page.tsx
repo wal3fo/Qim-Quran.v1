@@ -1,14 +1,11 @@
 import { notFound } from "next/navigation";
-import { getSurah, getSurahList } from "@/services/quranApi";
+import { getSurah } from "@/services/quranApi";
 import SurahDetailClient from "@/components/SurahDetailClient";
 import SeoJsonLd from "@/components/SeoJsonLd";
 
 type Params = Promise<{ number: string }>;
 
-export async function generateStaticParams() {
-  const surahs = await getSurahList({ revalidate: 86400 });
-  return surahs.map((surah) => ({ number: String(surah.number) }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Params }) {
   const { number: numberStr } = await params;

@@ -10,6 +10,8 @@ export const contentType = "image/png";
 
 type Params = Promise<{ reference: string }>;
 
+export const dynamic = "force-dynamic";
+
 export default async function OpenGraphImage({ params }: { params: Params }) {
   const { reference } = await params;
   const ayah = await getAyah(reference, { revalidate: 3600 });

@@ -6,7 +6,7 @@ export const metadata = {
   description: "Browse all Surahs of the Quran with quick access to details.",
 };
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 export default async function SurahPage() {
   const surahs = await getSurahList({ revalidate: 86400 });

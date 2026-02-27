@@ -2,6 +2,8 @@ import { getAyah } from "@/services/quranApi";
 
 type Params = Promise<{ reference: string }>;
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: { params: Params }) {
   const { reference } = await params;
   const ayah = await getAyah(reference, { revalidate: 3600 });

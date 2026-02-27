@@ -6,6 +6,8 @@ export const metadata = {
   description: "Explore Quran reciters and listen to sample recitations.",
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function RecitersPage() {
   const reciters = await getEditionsByFormat("audio", { revalidate: 86400 });
   return (
