@@ -71,7 +71,6 @@ export default function SurahDetailClient({ surah }: Props) {
   const translations = showTranslation
     ? translationData?.ayahs?.map((ayah) => ayah.text)
     : undefined;
-  const isAudioReady = Boolean(audioData?.ayahs?.every((ayah) => Boolean(ayah.audio)));
 
   return (
     <div className="space-y-6">
@@ -155,7 +154,6 @@ export default function SurahDetailClient({ surah }: Props) {
         translations={translations}
         tafsir={showTafsir ? tafsirData?.ayahs?.map((ayah) => ayah.text) : undefined}
         recitationEdition={recitationEdition}
-        audioReady={isAudioReady}
         audioLoading={isAudioLoading}
       />
     </div>

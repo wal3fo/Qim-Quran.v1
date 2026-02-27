@@ -16,7 +16,6 @@ type Props = {
   translations?: string[];
   tafsir?: string[];
   recitationEdition: string;
-  audioReady: boolean;
   audioLoading: boolean;
 };
 
@@ -26,7 +25,6 @@ export default function AyahList({
   translations,
   tafsir,
   recitationEdition,
-  audioReady,
   audioLoading,
 }: Props) {
   const setQueue = usePlayerStore((state) => state.setQueue);
@@ -62,9 +60,8 @@ export default function AyahList({
 
   const handlePlayAll = () => {
     setPlayError(null);
-    if (!audioReady) {
-      setPlayError(audioLoading ? "Audio is still loading." : "Audio is not available yet.");
-      return;
+    if (audioLoading) {
+      setPlayError("Audio is still loading. Playback will start as audio becomes available.");
     }
     console.info("Play all ayahs", { surahNumber, count: playerQueue.length });
     setQueue(playerQueue, 0);
@@ -111,7 +108,6 @@ export default function AyahList({
         <button
           type="button"
           onClick={handlePlayAll}
-          disabled={!audioReady}
           className="rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white"
         >
           {audioLoading ? "Loading Audio..." : "Play All"}
