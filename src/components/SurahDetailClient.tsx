@@ -22,6 +22,7 @@ export default function SurahDetailClient({ surah }: Props) {
   const [showTafsir, setShowTafsir] = useState(false);
   const [offlineSaved, setOfflineSaved] = useState(false);
   const setQueue = usePlayerStore((state) => state.setQueue);
+  const isQueueActive = usePlayerStore((state) => state.isQueueActive);
 
   useEffect(() => {
     if (surah.number < 114) {
@@ -96,6 +97,7 @@ export default function SurahDetailClient({ surah }: Props) {
           <>
             <button
               type="button"
+              disabled={isQueueActive}
               onClick={() =>
                 setQueue(
                   [
@@ -110,9 +112,9 @@ export default function SurahDetailClient({ surah }: Props) {
                   0,
                 )
               }
-              className="rounded-full bg-primary-600 px-3 py-1 text-xs font-semibold text-white"
+              className="rounded-full bg-primary-600 px-3 py-1 text-xs font-semibold text-white disabled:opacity-50"
             >
-              Play Full Surah
+              {isQueueActive ? "Playing..." : "Play Full Surah"}
             </button>
             <a
               href={fullSurahAudio.audio}

@@ -20,9 +20,11 @@ type PlayerState = {
   volume: number;
   repeat: "off" | "ayah" | "surah";
   shuffle: boolean;
+  isQueueActive: boolean;
   setQueue: (queue: PlayerAyah[], startIndex?: number) => void;
   playAt: (index: number) => void;
   setPlaying: (playing: boolean) => void;
+  setQueueActive: (active: boolean) => void;
   setPlaybackRate: (rate: number) => void;
   setVolume: (volume: number) => void;
   setRepeat: (repeat: "off" | "ayah" | "surah") => void;
@@ -30,6 +32,7 @@ type PlayerState = {
   updateQueueItem: (index: number, update: Partial<PlayerAyah>) => void;
   next: () => void;
   previous: () => void;
+  syncState: (state: { isPlaying: boolean; currentIndex: number; queue: PlayerAyah[] }) => void;
 };
 
 export const usePlayerStore = create<PlayerState>()(
@@ -42,10 +45,12 @@ export const usePlayerStore = create<PlayerState>()(
       volume: 1,
       repeat: "off",
       shuffle: false,
+      isQueueActive: false,
       setQueue: (queue, startIndex = 0) =>
-        set({ queue, currentIndex: startIndex, isPlaying: true }),
+        set({ queue, currentIndex: startIndex, isPlaying: true, isQueueActive: true }),
       playAt: (index) => set({ currentIndex: index, isPlaying: true }),
       setPlaying: (isPlaying) => set({ isPlaying }),
+      setQueueActive: (isQueueActive) => set({ isQueueActive }),
       setPlaybackRate: (playbackRate) => set({ playbackRate }),
       setVolume: (volume) => set({ volume: Math.max(0, Math.min(1, volume)) }),
       setRepeat: (repeat) => set({ repeat }),
@@ -79,7 +84,7 @@ export const usePlayerStore = create<PlayerState>()(
         } else if (repeat === "surah") {
           set({ currentIndex: 0, isPlaying: true });
         } else {
-          set({ isPlaying: false });
+          set({ isPlaying: false, isQueueActive: false });
         }
       },
       previous: () => {
@@ -87,6 +92,13 @@ export const usePlayerStore = create<PlayerState>()(
         const prevIndex = Math.max(0, currentIndex - 1);
         set({ currentIndex: prevIndex, isPlaying: true });
       },
+      syncState: (state) =>
+        set({
+          isPlaying: state.isPlaying,
+          currentIndex: state.currentIndex,
+          queue: state.queue,
+          isQueueActive: state.isPlaying || state.currentIndex < state.queue.length - 1,
+        }),
     }),
     {
       name: "qim-player",

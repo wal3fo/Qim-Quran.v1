@@ -1,125 +1,96 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getAudio } from "@/services/quranApi";
 import { usePlayerStore } from "@/store/usePlayerStore";
-import { usePreferencesStore } from "@/store/usePreferencesStore";
+import { AudioPlayerCore } from "@/lib/audioPlayerCore";
 
+/**
+ * AudioPlayer component that integrates with the framework-agnostic AudioPlayerCore.
+ * This refactor ensures sequential playback, correct event listener hygiene, and 
+ * handles state synchronization with the Zustand store.
+ * 
+ * Prior flaws resolved:
+ * 1. Event listener duplication: Listeners are now bound once in the Core class constructor.
+ * 2. Stalled progression: The "ended" event now reliably triggers the next ayah in the Core class.
+ * 3. Memory leaks: Core class provides a cleanup routine for teardown.
+ */
 export default function AudioPlayer() {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const retryCountsRef = useRef<Record<string, number>>({});
-  const suppressPauseRef = useRef(false);
-  const transitionRef = useRef(false);
-  const loadingReferenceRef = useRef<string | null>(null);
+  const audioCoreRef = useRef<AudioPlayerCore | null>(null);
+  
+  // Store state
   const queue = usePlayerStore((state) => state.queue);
   const currentIndex = usePlayerStore((state) => state.currentIndex);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
+  const isQueueActive = usePlayerStore((state) => state.isQueueActive);
   const playbackRate = usePlayerStore((state) => state.playbackRate);
   const volume = usePlayerStore((state) => state.volume);
+  const repeat = usePlayerStore((state) => state.repeat);
+  const shuffle = usePlayerStore((state) => state.shuffle);
+
+  // Store actions
   const setPlaying = usePlayerStore((state) => state.setPlaying);
-  const next = usePlayerStore((state) => state.next);
-  const previous = usePlayerStore((state) => state.previous);
   const setPlaybackRate = usePlayerStore((state) => state.setPlaybackRate);
   const setVolume = usePlayerStore((state) => state.setVolume);
   const setRepeat = usePlayerStore((state) => state.setRepeat);
-  const repeat = usePlayerStore((state) => state.repeat);
-  const shuffle = usePlayerStore((state) => state.shuffle);
   const toggleShuffle = usePlayerStore((state) => state.toggleShuffle);
-  const updateQueueItem = usePlayerStore((state) => state.updateQueueItem);
-  const recitationEdition = usePreferencesStore((state) => state.recitationEdition);
+  const syncState = usePlayerStore((state) => state.syncState);
+
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const current = queue[currentIndex];
 
+  // Initialize the framework-agnostic core logic
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return;
+    if (!audioCoreRef.current) {
+      audioCoreRef.current = new AudioPlayerCore((state) => {
+        // Synchronize core state back to Zustand for UI reactivity
+        syncState(state);
+      });
     }
-    audio.playbackRate = playbackRate;
+
+    return () => {
+      audioCoreRef.current?.cleanup();
+      audioCoreRef.current = null;
+    };
+  }, [syncState]);
+
+  // Handle external controls (Volume, Rate)
+  useEffect(() => {
+    audioCoreRef.current?.setVolume(volume);
+  }, [volume]);
+
+  useEffect(() => {
+    audioCoreRef.current?.setPlaybackRate(playbackRate);
   }, [playbackRate]);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !current) {
-      return;
-    }
-    if (!current.audioUrl) {
-      if (loadingReferenceRef.current === current.reference) {
-        return;
-      }
-      loadingReferenceRef.current = current.reference;
-      setStatus("loading");
-      setErrorMessage(null);
-      console.info("Fetching missing audio", { reference: current.reference, recitationEdition });
-      getAudio(recitationEdition, current.reference)
-        .then((audioResponse) => {
-          if (!audioResponse.audio) {
-            throw new Error("Audio not available.");
-          }
-          updateQueueItem(currentIndex, { audioUrl: audioResponse.audio });
-        })
-        .catch((error) => {
-          console.error("Failed to fetch audio", { reference: current.reference, error });
-          setStatus("error");
-          setErrorMessage("Unable to load audio. Please try again.");
-          setPlaying(false);
-        })
-        .finally(() => {
-          loadingReferenceRef.current = null;
-        });
-      return;
-    }
-    audio.src = current.audioUrl;
-    audio.load();
-    retryCountsRef.current[current.audioUrl] = 0;
-    setStatus("loading");
-    setErrorMessage(null);
-    if (isPlaying) {
-      audio
-        .play()
-        .then(() => {
-          suppressPauseRef.current = false;
-          setStatus("idle");
-          console.info("Audio play started", { reference: current.reference });
-        })
-        .catch((error) => {
-          console.error("Audio play failed", { reference: current.reference, error });
-          transitionRef.current = false;
-          setStatus("error");
-          setErrorMessage("Playback failed. Tap play to retry.");
-        });
-    }
-  }, [current?.audioUrl, current?.reference, currentIndex, isPlaying, recitationEdition, updateQueueItem]);
+  // Detect and react to store changes (Play All, Play Single, Pause)
+  const lastQueueRef = useRef(queue);
+  const lastIsPlayingRef = useRef(isPlaying);
+  const lastIndexRef = useRef(currentIndex);
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio || !current?.audioUrl || !isPlaying) {
-      return;
-    }
-    if (audio.paused) {
-      audio
-        .play()
-        .then(() => {
-          setStatus("idle");
-        })
-        .catch((error) => {
-          console.error("Autoplay resume failed", { reference: current.reference, error });
-          transitionRef.current = false;
-          setStatus("error");
-          setErrorMessage("Playback failed. Tap play to retry.");
-        });
-    }
-  }, [currentIndex, current?.audioUrl, isPlaying]);
+    if (!audioCoreRef.current) return;
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) {
-      return;
+    const queueChanged = queue !== lastQueueRef.current;
+    const playToggled = isPlaying !== lastIsPlayingRef.current;
+    const indexChanged = currentIndex !== lastIndexRef.current;
+
+    if (queueChanged && isPlaying) {
+      // New queue set (Play All or Play Surah)
+      audioCoreRef.current.playAll(queue, currentIndex);
+    } else if (playToggled) {
+      // Simple play/pause toggle
+      if (isPlaying) audioCoreRef.current.resume();
+      else audioCoreRef.current.pause();
+    } else if (indexChanged && isPlaying) {
+      // Manual track change
+      audioCoreRef.current.playAll(queue, currentIndex);
     }
-    audio.volume = volume;
-  }, [volume]);
+
+    lastQueueRef.current = queue;
+    lastIsPlayingRef.current = isPlaying;
+    lastIndexRef.current = currentIndex;
+  }, [queue, isPlaying, currentIndex]);
 
   if (!current) {
     return null;
@@ -134,127 +105,90 @@ export default function AudioPlayer() {
           </p>
           <p className="text-xs text-zinc-500 line-clamp-1">{current.text}</p>
         </div>
+        
         <div className="text-xs">
-          {status === "loading" && <span className="text-primary-600">Loading audio...</span>}
-          {status === "error" && errorMessage && (
-            <span className="text-red-600">{errorMessage}</span>
+          {isQueueActive && <span className="text-primary-600 font-medium">Sequential Playback Active</span>}
+          {status === "error" && (
+            <span className="text-red-600 ml-2">Playback issue. Retrying...</span>
           )}
         </div>
+
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={previous}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+            onClick={() => audioCoreRef.current?.previous()}
+            className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             Prev
           </button>
+          
           <button
             type="button"
             onClick={() => setPlaying(!isPlaying)}
-            className="rounded-full bg-primary-600 px-4 py-1 text-xs font-semibold text-white"
+            className="rounded-full bg-primary-600 px-4 py-1 text-xs font-semibold text-white hover:bg-primary-700 transition-colors shadow-sm"
           >
             {isPlaying ? "Pause" : "Play"}
           </button>
+          
           <button
             type="button"
-            onClick={next}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+            onClick={() => audioCoreRef.current?.next()}
+            className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             Next
           </button>
+
           <button
             type="button"
             onClick={toggleShuffle}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+              shuffle 
+                ? "border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-300" 
+                : "border-zinc-300 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            }`}
           >
             {shuffle ? "Shuffle On" : "Shuffle Off"}
           </button>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.05}
-            value={volume}
-            onChange={(event) => setVolume(Number(event.target.value))}
-            className="h-7 w-24"
-            aria-label="Volume"
-          />
+
+          <div className="flex items-center gap-2 ml-2">
+            <span className="text-[10px] text-zinc-400 uppercase tracking-wider">Vol</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={volume}
+              onChange={(event) => setVolume(Number(event.target.value))}
+              className="h-1.5 w-20 accent-primary-600 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer"
+              aria-label="Volume"
+            />
+          </div>
+
           <select
             value={playbackRate}
             onChange={(event) => setPlaybackRate(Number(event.target.value))}
-            className="rounded-full border border-zinc-300 bg-transparent px-2 py-1 text-xs dark:border-zinc-700"
+            className="rounded-full border border-zinc-300 bg-transparent px-2 py-1 text-xs dark:border-zinc-700 focus:ring-1 focus:ring-primary-500 outline-none"
             aria-label="Playback speed"
           >
-            {[0.75, 1, 1.25, 1.5].map((rate) => (
-              <option key={rate} value={rate}>
+            {[0.75, 1, 1.25, 1.5, 2].map((rate) => (
+              <option key={rate} value={rate} className="dark:bg-zinc-900">
                 {rate}x
               </option>
             ))}
           </select>
+
           <select
             value={repeat}
             onChange={(event) => setRepeat(event.target.value as "off" | "ayah" | "surah")}
-            className="rounded-full border border-zinc-300 bg-transparent px-2 py-1 text-xs dark:border-zinc-700"
+            className="rounded-full border border-zinc-300 bg-transparent px-2 py-1 text-xs dark:border-zinc-700 focus:ring-1 focus:ring-primary-500 outline-none"
             aria-label="Repeat mode"
           >
-            <option value="off">No Repeat</option>
-            <option value="ayah">Repeat Ayah</option>
-            <option value="surah">Repeat Surah</option>
+            <option value="off" className="dark:bg-zinc-900">No Repeat</option>
+            <option value="ayah" className="dark:bg-zinc-900">Repeat Ayah</option>
+            <option value="surah" className="dark:bg-zinc-900">Repeat Surah</option>
           </select>
         </div>
       </div>
-      <audio
-        ref={audioRef}
-        onEnded={() => {
-          console.info("Audio ended", { reference: current.reference });
-          suppressPauseRef.current = true;
-          transitionRef.current = true;
-          next();
-        }}
-        onPlay={() => {
-          setPlaying(true);
-          setStatus("idle");
-          setErrorMessage(null);
-          suppressPauseRef.current = false;
-          transitionRef.current = false;
-        }}
-        onPause={() => {
-          if (suppressPauseRef.current || transitionRef.current) {
-            return;
-          }
-          setPlaying(false);
-        }}
-        onWaiting={() => setStatus("loading")}
-        onCanPlay={() => setStatus("idle")}
-        onError={() => {
-          const audio = audioRef.current;
-          const url = current?.audioUrl;
-          if (!audio || !url) {
-            return;
-          }
-          const retries = retryCountsRef.current[url] ?? 0;
-          if (retries < 2) {
-            retryCountsRef.current[url] = retries + 1;
-            setStatus("loading");
-            console.warn("Retrying audio load", { url, attempt: retries + 1 });
-            setTimeout(() => {
-              audio.load();
-              audio.play().catch((error) => {
-                console.error("Retry failed", { url, error });
-                transitionRef.current = false;
-                setStatus("error");
-                setErrorMessage("Unable to load audio. Please try again.");
-              });
-            }, 300 * (retries + 1));
-            return;
-          }
-          transitionRef.current = false;
-          setStatus("error");
-          setErrorMessage("Unable to load audio. Please try again.");
-          console.error("Audio error after retries", { url });
-          setPlaying(false);
-        }}
-      />
     </div>
   );
 }

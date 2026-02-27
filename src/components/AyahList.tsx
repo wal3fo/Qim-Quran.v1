@@ -30,6 +30,8 @@ export default function AyahList({
   const setQueue = usePlayerStore((state) => state.setQueue);
   const currentIndex = usePlayerStore((state) => state.currentIndex);
   const queue = usePlayerStore((state) => state.queue);
+  const isQueueActive = usePlayerStore((state) => state.isQueueActive);
+  const setQueueActive = usePlayerStore((state) => state.setQueueActive);
   const addBookmark = useBookmarkStore((state) => state.addBookmark);
   const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
   const isBookmarked = useBookmarkStore((state) => state.isBookmarked);
@@ -59,6 +61,7 @@ export default function AyahList({
   );
 
   const handlePlayAll = () => {
+    if (isQueueActive) return; // Debounce/Prevent rapid clicks
     setPlayError(null);
     if (audioLoading) {
       setPlayError("Audio is still loading. Playback will start as audio becomes available.");
@@ -69,6 +72,7 @@ export default function AyahList({
 
   const handlePlayAyah = async (reference: string, index: number, audioUrl?: string) => {
     setPlayError(null);
+    setQueueActive(false); // Manual play aborts the queue as per requirements
     if (!audioUrl) {
       setPlayLoadingReference(reference);
       try {
@@ -108,9 +112,10 @@ export default function AyahList({
         <button
           type="button"
           onClick={handlePlayAll}
-          className="rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white"
+          disabled={isQueueActive || audioLoading}
+          className="rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white disabled:opacity-50 transition-opacity"
         >
-          {audioLoading ? "Loading Audio..." : "Play All"}
+          {audioLoading ? "Loading Audio..." : isQueueActive ? "Playing..." : "Play All"}
         </button>
       </div>
       {playError && <p className="text-sm text-red-600">{playError}</p>}
