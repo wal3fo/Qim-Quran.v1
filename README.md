@@ -109,9 +109,11 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 2. Configure the build settings in the Cloudflare Dashboard:
    - **Build command:** `npm run pages:build`
    - **Build output directory:** `.open-next`
+   - **Framework preset:** `None`
 3. Cloudflare Pages will automatically build and deploy your project on every push.
 
-No manual `wrangler deploy` is required.
+No manual `wrangler deploy` or `wrangler pages deploy` is required. Manual deployment commands will fail because this is a Pages project.
+
 
 ### Vercel
 

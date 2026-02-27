@@ -6,6 +6,7 @@
     "dev": "node ./scripts/dev.mjs",
     "build": "next build",
     "pages:build": "opennextjs-cloudflare build",
+    "worker:build": "opennextjs-cloudflare build",
     "lint": "next lint",
     "test": "vitest run"
   },
