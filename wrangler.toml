@@ -1,0 +1,10 @@
+name = "qim-quran"
+compatibility_date = "2026-02-27"
+pages_build_output_dir = ".open-next"
+
+[[services]]
+binding = "WORKER_SELF_REFERENCE"
+service = "qim-quran"
+
+[vars]
+# Add any environment variables here if needed

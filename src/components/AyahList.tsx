@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import AyahModal from "@/components/AyahModal";
 import { useBookmarkStore } from "@/store/useBookmarkStore";
@@ -43,6 +43,17 @@ export default function AyahList({
   const [selectedReference, setSelectedReference] = useState<string | null>(null);
   const [playError, setPlayError] = useState<string | null>(null);
   const [playLoadingReference, setPlayLoadingReference] = useState<string | null>(null);
+  const activeAyahRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll to the active ayah when it changes
+  useEffect(() => {
+    if (activeAyahRef.current) {
+      activeAyahRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [currentIndex]);
 
   const { data: selectedAyah } = useQuery({
     queryKey: ["ayah-detail", selectedReference],
@@ -124,23 +135,34 @@ export default function AyahList({
       <div className="space-y-4">
         {ayahs.map((ayah, index) => {
           const reference = formatReference(surahNumber, ayah.numberInSurah);
-          const active = queue[currentIndex]?.reference === reference;
+          const fullReference = `${surahName} ${surahNumber}:${ayah.numberInSurah}`;
+          const active = queue[currentIndex]?.reference === fullReference;
           const bookmarked = isBookmarked(reference);
           const isLoading = playLoadingReference === reference;
+          
           return (
             <div
               key={reference}
-              className={`rounded-2xl border p-4 ${
+              ref={active ? activeAyahRef : null}
+              className={`rounded-2xl border p-4 transition-all duration-300 ${
                 active
-                  ? "border-primary-500 bg-primary-50/70 dark:bg-primary-900/20"
-                  : "border-zinc-200 dark:border-zinc-800"
+                  ? "border-primary-500 bg-primary-50/70 shadow-md ring-1 ring-primary-500/20 dark:bg-primary-900/20"
+                  : "border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 space-y-3">
-                  <p className="arabic-text text-2xl leading-relaxed text-zinc-900 dark:text-zinc-100">
-                    {ayah.text}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    {active && (
+                      <span className="flex h-2 w-2 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
+                      </span>
+                    )}
+                    <p className="arabic-text text-2xl leading-relaxed text-zinc-900 dark:text-zinc-100">
+                      {ayah.text}
+                    </p>
+                  </div>
                   {translations?.[index] && (
                     <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-300">
                       {translations[index]}
