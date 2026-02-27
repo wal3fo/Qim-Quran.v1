@@ -1,4 +1,4 @@
-name = "qim-quran"
+name = "qimquran"
 main = ".open-next/worker.js"
 compatibility_date = "2026-02-27"
 compatibility_flags = ["nodejs_compat"]
@@ -9,7 +9,7 @@ binding = "ASSETS"
 
 [[services]]
 binding = "WORKER_SELF_REFERENCE"
-service = "qim-quran"
+service = "qimquran"
 
 [vars]
 # Add any environment variables here if needed
