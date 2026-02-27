@@ -86,7 +86,7 @@ export default function SurahListClient({ surahs }: Props) {
                     setQueue(
                       [
                         {
-                          reference: `Surah ${surah.number}`,
+                          reference: `${surah.englishName} ${surah.number}`,
                           surahNumber: surah.number,
                           ayahNumber: 1,
                           text: surah.englishName,

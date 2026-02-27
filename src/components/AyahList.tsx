@@ -12,6 +12,7 @@ import { formatReference } from "@/utils/quran";
 
 type Props = {
   surahNumber: number;
+  surahName: string;
   ayahs: Ayah[];
   translations?: string[];
   tafsir?: string[];
@@ -21,6 +22,7 @@ type Props = {
 
 export default function AyahList({
   surahNumber,
+  surahName,
   ayahs,
   translations,
   tafsir,
@@ -51,13 +53,13 @@ export default function AyahList({
   const playerQueue = useMemo(
     () =>
       ayahs.map((ayah) => ({
-        reference: formatReference(surahNumber, ayah.numberInSurah),
+        reference: `${surahName} ${surahNumber}:${ayah.numberInSurah}`,
         surahNumber,
         ayahNumber: ayah.numberInSurah,
         text: ayah.text,
         audioUrl: ayah.audio,
       })),
-    [ayahs, surahNumber],
+    [ayahs, surahNumber, surahName],
   );
 
   const handlePlayAll = () => {
@@ -84,7 +86,7 @@ export default function AyahList({
         setQueue(
           [
             {
-              reference,
+              reference: `${surahName} ${surahNumber}:${ayahs[index]?.numberInSurah ?? index + 1}`,
               surahNumber,
               ayahNumber: ayahs[index]?.numberInSurah ?? index + 1,
               text: ayahs[index]?.text ?? "",

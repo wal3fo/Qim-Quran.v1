@@ -102,7 +102,7 @@ export default function SurahDetailClient({ surah }: Props) {
                 setQueue(
                   [
                     {
-                      reference: `Surah ${surah.number}`,
+                      reference: `${surah.englishName} ${surah.number}`,
                       surahNumber: surah.number,
                       ayahNumber: 1,
                       text: surah.englishName,
@@ -152,6 +152,7 @@ export default function SurahDetailClient({ surah }: Props) {
       </div>
       <AyahList
         surahNumber={surah.number}
+        surahName={surah.englishName}
         ayahs={ayahs}
         translations={translations}
         tafsir={showTafsir ? tafsirData?.ayahs?.map((ayah) => ayah.text) : undefined}
