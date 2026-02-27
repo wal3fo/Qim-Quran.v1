@@ -80,11 +80,16 @@ export default function AudioPlayer() {
       audioCoreRef.current.playAll(queue, currentIndex);
     } else if (playToggled) {
       // Simple play/pause toggle
-      if (isPlaying) audioCoreRef.current.resume();
-      else audioCoreRef.current.pause();
+      if (isPlaying) {
+        if (!audioCoreRef.current.getIsPlaying()) audioCoreRef.current.resume();
+      } else {
+        if (audioCoreRef.current.getIsPlaying()) audioCoreRef.current.pause();
+      }
     } else if (indexChanged && isPlaying) {
-      // Manual track change
-      audioCoreRef.current.playAll(queue, currentIndex);
+      // Manual track change - only trigger if core is not already on this index
+      if (audioCoreRef.current.getCurrentIndex() !== currentIndex) {
+        audioCoreRef.current.playAll(queue, currentIndex);
+      }
     }
 
     lastQueueRef.current = queue;

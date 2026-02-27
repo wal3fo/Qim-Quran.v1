@@ -93,11 +93,22 @@ export class AudioPlayerCore {
    * Rebuild the queue and start sequential playback from a user gesture.
    */
   public playAll(ayahs: PlayerAyah[], startIndex = 0, onFinish?: () => void) {
+    // Check if we're already playing this exact queue and index to avoid redundant restarts
+    if (
+      this.isPlaying &&
+      this.currentIndex === startIndex &&
+      this.queue.length === ayahs.length &&
+      this.queue[0]?.reference === ayahs[0]?.reference
+    ) {
+      console.info("AudioPlayerCore: Already playing this queue at this index, ignoring playAll");
+      return;
+    }
+
     // Debounce to prevent multiple rapid executions
     if (this.debounceTimeout) return;
     this.debounceTimeout = setTimeout(() => {
       this.debounceTimeout = null;
-    }, 500);
+    }, 150);
 
     console.info("AudioPlayerCore: Rebuilding queue and starting playback", { 
       count: ayahs.length, 
@@ -117,7 +128,12 @@ export class AudioPlayerCore {
    * Stop playback, clear queue, and reset state.
    */
   public stop() {
-    this.audio.pause();
+    if (!this.audio) return;
+    
+    // To avoid AbortError, we only pause if we're not already paused
+    if (!this.audio.paused) {
+      this.audio.pause();
+    }
     this.audio.src = "";
     this.isPlaying = false;
     this.queue = [];
@@ -127,14 +143,18 @@ export class AudioPlayerCore {
   }
 
   public pause() {
-    this.audio.pause();
+    if (this.audio && !this.audio.paused) {
+      this.audio.pause();
+    }
     this.isPlaying = false;
     this.notify();
   }
 
   public resume() {
-    if (this.queue.length > 0) {
-      this.audio.play().catch(console.error);
+    if (this.queue.length > 0 && this.audio) {
+      this.audio.play().catch((err) => {
+        if (err.name !== "AbortError") console.error("AudioPlayerCore: Resume failed", err);
+      });
       this.isPlaying = true;
       this.notify();
     }
@@ -158,16 +178,39 @@ export class AudioPlayerCore {
       return;
     }
 
+    if (!this.audio) return;
+
     this.audio.src = current.audioUrl;
     this.audio.load();
-    this.audio.play().catch((error) => {
-      // Browsers may block autoplay if not inside a user gesture
-      console.error("AudioPlayerCore: Playback failed", {
-        error,
-        reference: current.reference,
+    
+    // Capture the play promise to handle AbortError gracefully
+    const playPromise = this.audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch((error) => {
+        if (error.name === "AbortError") {
+          // Ignore AbortError as it's usually due to intentional interruption
+          console.info("AudioPlayerCore: Playback interrupted (AbortError)");
+        } else {
+          console.error("AudioPlayerCore: Playback failed", {
+            error,
+            reference: current.reference,
+          });
+        }
       });
-    });
+    }
     this.notify();
+  }
+
+  public getCurrentIndex() {
+    return this.currentIndex;
+  }
+
+  public getQueue() {
+    return this.queue;
+  }
+
+  public getIsPlaying() {
+    return this.isPlaying;
   }
 
   public next() {
