@@ -103,16 +103,15 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.com
 
 ## Deployment
 
-### Cloudflare Workers (OpenNext)
+### Cloudflare Pages (OpenNext)
 
-1. Install dependencies.
-2. Build the worker bundle.
-3. Deploy using Wrangler or Cloudflare’s Git integration.
+1. Connect your repository to Cloudflare Pages.
+2. Configure the build settings in the Cloudflare Dashboard:
+   - **Build command:** `npm run pages:build`
+   - **Build output directory:** `.open-next`
+3. Cloudflare Pages will automatically build and deploy your project on every push.
 
-```bash
-npm install
-npm run pages:build
-```
+No manual `wrangler deploy` is required.
 
 ### Vercel
 
