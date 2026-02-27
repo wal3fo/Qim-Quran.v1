@@ -9,6 +9,7 @@ export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const retryCountsRef = useRef<Record<string, number>>({});
   const suppressPauseRef = useRef(false);
+  const transitionTimeoutRef = useRef<number | null>(null);
   const loadingReferenceRef = useRef<string | null>(null);
   const queue = usePlayerStore((state) => state.queue);
   const currentIndex = usePlayerStore((state) => state.currentIndex);
@@ -71,6 +72,7 @@ export default function AudioPlayer() {
       return;
     }
     audio.src = current.audioUrl;
+    audio.load();
     retryCountsRef.current[current.audioUrl] = 0;
     setStatus("loading");
     setErrorMessage(null);
@@ -89,6 +91,25 @@ export default function AudioPlayer() {
         });
     }
   }, [current?.audioUrl, current?.reference, currentIndex, isPlaying, recitationEdition, updateQueueItem]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !current?.audioUrl || !isPlaying) {
+      return;
+    }
+    if (audio.paused) {
+      audio
+        .play()
+        .then(() => {
+          setStatus("idle");
+        })
+        .catch((error) => {
+          console.error("Autoplay resume failed", { reference: current.reference, error });
+          setStatus("error");
+          setErrorMessage("Playback failed. Tap play to retry.");
+        });
+    }
+  }, [currentIndex, current?.audioUrl, isPlaying]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -185,6 +206,12 @@ export default function AudioPlayer() {
         onEnded={() => {
           console.info("Audio ended", { reference: current.reference });
           suppressPauseRef.current = true;
+          if (transitionTimeoutRef.current) {
+            window.clearTimeout(transitionTimeoutRef.current);
+          }
+          transitionTimeoutRef.current = window.setTimeout(() => {
+            suppressPauseRef.current = false;
+          }, 500);
           next();
         }}
         onPlay={() => {
@@ -192,6 +219,9 @@ export default function AudioPlayer() {
           setStatus("idle");
           setErrorMessage(null);
           suppressPauseRef.current = false;
+          if (transitionTimeoutRef.current) {
+            window.clearTimeout(transitionTimeoutRef.current);
+          }
         }}
         onPause={() => {
           if (suppressPauseRef.current) {
