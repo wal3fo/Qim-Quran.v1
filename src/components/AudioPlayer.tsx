@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePlayerStore } from "@/store/usePlayerStore";
 
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const retryCountsRef = useRef<Record<string, number>>({});
   const queue = usePlayerStore((state) => state.queue);
   const currentIndex = usePlayerStore((state) => state.currentIndex);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
@@ -15,6 +16,8 @@ export default function AudioPlayer() {
   const setPlaybackRate = usePlayerStore((state) => state.setPlaybackRate);
   const setRepeat = usePlayerStore((state) => state.setRepeat);
   const repeat = usePlayerStore((state) => state.repeat);
+  const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const current = queue[currentIndex];
 
@@ -29,11 +32,30 @@ export default function AudioPlayer() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !current?.audioUrl) {
+      if (isPlaying && current && !current.audioUrl) {
+        setStatus("error");
+        setErrorMessage("Audio is not available for this ayah.");
+        console.error("Missing audio URL", { current });
+        setPlaying(false);
+      }
       return;
     }
     audio.src = current.audioUrl;
+    retryCountsRef.current[current.audioUrl] = 0;
+    setStatus("loading");
+    setErrorMessage(null);
     if (isPlaying) {
-      audio.play().catch(() => undefined);
+      audio
+        .play()
+        .then(() => {
+          setStatus("idle");
+          console.info("Audio play started", { reference: current.reference });
+        })
+        .catch((error) => {
+          console.error("Audio play failed", { reference: current.reference, error });
+          setStatus("error");
+          setErrorMessage("Playback failed. Tap play to retry.");
+        });
     }
   }, [current?.audioUrl, isPlaying]);
 
@@ -49,6 +71,12 @@ export default function AudioPlayer() {
             {current.reference}
           </p>
           <p className="text-xs text-zinc-500 line-clamp-1">{current.text}</p>
+        </div>
+        <div className="text-xs">
+          {status === "loading" && <span className="text-primary-600">Loading audio...</span>}
+          {status === "error" && errorMessage && (
+            <span className="text-red-600">{errorMessage}</span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -98,9 +126,44 @@ export default function AudioPlayer() {
       </div>
       <audio
         ref={audioRef}
-        onEnded={next}
-        onPlay={() => setPlaying(true)}
+        onEnded={() => {
+          console.info("Audio ended", { reference: current.reference });
+          next();
+        }}
+        onPlay={() => {
+          setPlaying(true);
+          setStatus("idle");
+          setErrorMessage(null);
+        }}
         onPause={() => setPlaying(false)}
+        onWaiting={() => setStatus("loading")}
+        onCanPlay={() => setStatus("idle")}
+        onError={() => {
+          const audio = audioRef.current;
+          const url = current?.audioUrl;
+          if (!audio || !url) {
+            return;
+          }
+          const retries = retryCountsRef.current[url] ?? 0;
+          if (retries < 2) {
+            retryCountsRef.current[url] = retries + 1;
+            setStatus("loading");
+            console.warn("Retrying audio load", { url, attempt: retries + 1 });
+            setTimeout(() => {
+              audio.load();
+              audio.play().catch((error) => {
+                console.error("Retry failed", { url, error });
+                setStatus("error");
+                setErrorMessage("Unable to load audio. Please try again.");
+              });
+            }, 300 * (retries + 1));
+            return;
+          }
+          setStatus("error");
+          setErrorMessage("Unable to load audio. Please try again.");
+          console.error("Audio error after retries", { url });
+          setPlaying(false);
+        }}
       />
     </div>
   );

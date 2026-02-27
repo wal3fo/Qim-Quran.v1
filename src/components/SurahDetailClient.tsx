@@ -42,7 +42,7 @@ export default function SurahDetailClient({ surah }: Props) {
     queryFn: () => getSurahByEdition(surah.number, translationEdition),
   });
 
-  const { data: audioData } = useQuery({
+  const { data: audioData, isLoading: isAudioLoading } = useQuery({
     queryKey: ["surah-audio", surah.number, recitationEdition],
     queryFn: () => getSurahByEdition(surah.number, recitationEdition),
   });
@@ -71,6 +71,7 @@ export default function SurahDetailClient({ surah }: Props) {
   const translations = showTranslation
     ? translationData?.ayahs?.map((ayah) => ayah.text)
     : undefined;
+  const isAudioReady = Boolean(audioData?.ayahs?.every((ayah) => Boolean(ayah.audio)));
 
   return (
     <div className="space-y-6">
@@ -153,6 +154,9 @@ export default function SurahDetailClient({ surah }: Props) {
         ayahs={ayahs}
         translations={translations}
         tafsir={showTafsir ? tafsirData?.ayahs?.map((ayah) => ayah.text) : undefined}
+        recitationEdition={recitationEdition}
+        audioReady={isAudioReady}
+        audioLoading={isAudioLoading}
       />
     </div>
   );

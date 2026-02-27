@@ -7,7 +7,7 @@ import { useBookmarkStore } from "@/store/useBookmarkStore";
 import { usePlayerStore } from "@/store/usePlayerStore";
 import { useReadingProgressStore } from "@/store/useReadingProgressStore";
 import type { Ayah } from "@/types/quran";
-import { getAyah } from "@/services/quranApi";
+import { getAudio, getAyah } from "@/services/quranApi";
 import { formatReference } from "@/utils/quran";
 
 type Props = {
@@ -15,9 +15,20 @@ type Props = {
   ayahs: Ayah[];
   translations?: string[];
   tafsir?: string[];
+  recitationEdition: string;
+  audioReady: boolean;
+  audioLoading: boolean;
 };
 
-export default function AyahList({ surahNumber, ayahs, translations, tafsir }: Props) {
+export default function AyahList({
+  surahNumber,
+  ayahs,
+  translations,
+  tafsir,
+  recitationEdition,
+  audioReady,
+  audioLoading,
+}: Props) {
   const setQueue = usePlayerStore((state) => state.setQueue);
   const currentIndex = usePlayerStore((state) => state.currentIndex);
   const queue = usePlayerStore((state) => state.queue);
@@ -28,6 +39,8 @@ export default function AyahList({ surahNumber, ayahs, translations, tafsir }: P
   const addHistory = useReadingProgressStore((state) => state.addHistory);
   const setCompletion = useReadingProgressStore((state) => state.setCompletion);
   const [selectedReference, setSelectedReference] = useState<string | null>(null);
+  const [playError, setPlayError] = useState<string | null>(null);
+  const [playLoadingReference, setPlayLoadingReference] = useState<string | null>(null);
 
   const { data: selectedAyah } = useQuery({
     queryKey: ["ayah-detail", selectedReference],
@@ -47,7 +60,49 @@ export default function AyahList({ surahNumber, ayahs, translations, tafsir }: P
     [ayahs, surahNumber],
   );
 
-  const handlePlayAll = () => setQueue(playerQueue, 0);
+  const handlePlayAll = () => {
+    setPlayError(null);
+    if (!audioReady) {
+      setPlayError(audioLoading ? "Audio is still loading." : "Audio is not available yet.");
+      return;
+    }
+    console.info("Play all ayahs", { surahNumber, count: playerQueue.length });
+    setQueue(playerQueue, 0);
+  };
+
+  const handlePlayAyah = async (reference: string, index: number, audioUrl?: string) => {
+    setPlayError(null);
+    if (!audioUrl) {
+      setPlayLoadingReference(reference);
+      try {
+        console.info("Fetching audio for ayah", { reference, recitationEdition });
+        const audio = await getAudio(recitationEdition, reference);
+        if (!audio.audio) {
+          throw new Error("Audio not available.");
+        }
+        setQueue(
+          [
+            {
+              reference,
+              surahNumber,
+              ayahNumber: ayahs[index]?.numberInSurah ?? index + 1,
+              text: ayahs[index]?.text ?? "",
+              audioUrl: audio.audio,
+            },
+          ],
+          0,
+        );
+      } catch (error) {
+        console.error("Failed to load ayah audio", { reference, error });
+        setPlayError("Unable to load audio. Please try again.");
+      } finally {
+        setPlayLoadingReference(null);
+      }
+      return;
+    }
+    console.info("Play ayah", { reference });
+    setQueue(playerQueue, index);
+  };
 
   return (
     <div className="space-y-6">
@@ -56,16 +111,19 @@ export default function AyahList({ surahNumber, ayahs, translations, tafsir }: P
         <button
           type="button"
           onClick={handlePlayAll}
+          disabled={!audioReady}
           className="rounded-full bg-primary-600 px-4 py-2 text-xs font-semibold text-white"
         >
-          Play All
+          {audioLoading ? "Loading Audio..." : "Play All"}
         </button>
       </div>
+      {playError && <p className="text-sm text-red-600">{playError}</p>}
       <div className="space-y-4">
         {ayahs.map((ayah, index) => {
           const reference = formatReference(surahNumber, ayah.numberInSurah);
           const active = queue[currentIndex]?.reference === reference;
           const bookmarked = isBookmarked(reference);
+          const isLoading = playLoadingReference === reference;
           return (
             <div
               key={reference}
@@ -95,8 +153,8 @@ export default function AyahList({ surahNumber, ayahs, translations, tafsir }: P
                   <span className="text-xs text-zinc-500">Ayah {ayah.numberInSurah}</span>
                   <button
                     type="button"
-                    onClick={() => {
-                      setQueue(playerQueue, index);
+                    onClick={async () => {
+                      await handlePlayAyah(reference, index, ayah.audio);
                       const entry = {
                         reference,
                         surahNumber,
@@ -107,9 +165,10 @@ export default function AyahList({ surahNumber, ayahs, translations, tafsir }: P
                       addHistory(entry);
                       setCompletion(surahNumber, Math.round(((index + 1) / ayahs.length) * 100));
                     }}
+                    disabled={isLoading}
                     className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
                   >
-                    Play
+                    {isLoading ? "Loading..." : "Play"}
                   </button>
                   <button
                     type="button"
