@@ -78,6 +78,8 @@ export interface AyahReferenceData {
   ruku: number;
   hizbQuarter: number;
   sajda: boolean | SajdaInfo;
+  audio?: string;
+  audioSecondary?: string[];
 }
 
 export interface AudioSurah {

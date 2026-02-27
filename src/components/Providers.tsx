@@ -9,16 +9,6 @@ type ProvidersProps = {
   children: React.ReactNode;
 };
 
-const globalObj = globalThis as typeof globalThis & {
-  __name?: (target: Function, value: string) => void;
-};
-
-if (!globalObj.__name) {
-  globalObj.__name = (target: Function, value: string) => {
-    Object.defineProperty(target, "name", { value, configurable: true });
-  };
-}
-
 export default function Providers({ children }: ProvidersProps) {
   const [client] = useState(() => createQueryClient());
   return (

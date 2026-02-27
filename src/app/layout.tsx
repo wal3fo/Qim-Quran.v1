@@ -54,6 +54,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (!globalThis.__name) {
+                globalThis.__name = (target, value) => {
+                  Object.defineProperty(target, "name", { value, configurable: true });
+                  return target;
+                };
+              }
+            `,
+          }}
+        />
+      </head>
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} ${arabic.variable} antialiased`}

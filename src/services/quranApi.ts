@@ -267,15 +267,23 @@ export const getAudio = (edition: string, reference: string | number, options?: 
   assertEdition(edition);
   if (typeof reference === "number") {
     assertSurahNumber(reference);
+    // Note: The /audio endpoint is currently unreliable for some reciters.
+    // We prefer using /surah/{number}/{edition} which is more stable.
+    // However, that returns the full surah object, not a single AudioSurah.
+    // If the caller expects a single audio URL, they should be aware that
+    // most reciters provide verse-by-verse audio, not a single file.
     return request<AudioSurah>(`/audio/${edition}/${reference}`, options).then((audio) => ({
       ...audio,
       audio: normalizeAudioUrl(audio.audio) ?? audio.audio,
     }));
   }
   assertAyahReference(reference);
-  return request<AudioSurah>(`/audio/${edition}/${reference}`, options).then((audio) => ({
-    ...audio,
-    audio: normalizeAudioUrl(audio.audio) ?? audio.audio,
+  // Use the more reliable /ayah/{reference}/{edition} endpoint for ayahs.
+  return request<AyahReferenceData>(`/ayah/${reference}/${edition}`, options).then((ayah) => ({
+    identifier: edition,
+    surah: ayah.surah,
+    audio: normalizeAudioUrl(ayah.audio) ?? ayah.audio ?? "",
+    edition: ayah.edition,
   }));
 };
 
