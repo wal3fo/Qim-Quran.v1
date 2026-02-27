@@ -26,7 +26,7 @@ export default function Providers({ children }: ProvidersProps) {
       attribute="class"
       defaultTheme="system"
       enableSystem
-      enableColorScheme={false}
+      enableColorScheme
       disableTransitionOnChange
     >
       <QueryClientProvider client={client}>{children}</QueryClientProvider>

@@ -1,18 +1,29 @@
 # Qim Quran
 
-Qim Quran is a production-ready Quran web application built with Next.js App Router and TypeScript. It integrates the full alquran.cloud API to deliver a fast, accessible, and mobile-first reading and listening experience.
+![Qim Quran Logo](https://raw.githubusercontent.com/wal3fo/Qim-Quran.v1/main/public/icon.svg)
+
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
+![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen)
+
+Qim Quran is a production-ready Quran web application built with the Next.js App Router and TypeScript. It integrates the full alquran.cloud API to deliver a fast, accessible, and mobile-first reading and listening experience.
 
 ## Features
 
 - Full alquran.cloud API coverage (Surahs, Ayahs, Juz, Editions, Audio, Search, Meta)
-- Strongly typed API layer with retry logic and caching
-- Quran reading with translation toggles and audio playback
-- Persistent audio player with repeat and speed controls
+- Strongly typed API layer with retry logic, caching, and rate limiting
+- Quran reading with translation toggles, tafsir, and audio playback
+- Persistent audio player with repeat, shuffle, and speed controls
 - Bookmarks, reading progress, and recent history
 - Editions and reciters discovery
 - SEO-ready metadata, sitemap, and robots
 - PWA manifest and offline cache
 - Dark/light theme support and multilingual UI toggle
+
+## Preview
+
+![Qim Quran Preview](https://raw.githubusercontent.com/wal3fo/Qim-Quran.v1/main/public/QimteKw.png)
 
 ## Tech Stack
 
@@ -24,60 +35,132 @@ Qim Quran is a production-ready Quran web application built with Next.js App Rou
 - Native HTML5 audio
 - ESLint + Prettier
 
-## Folder Structure
+## Installation
 
-```
-/app
-  /surah
-  /juz
-  /search
-  /editions
-  /reciters
-/components
-/services
-/store
-/hooks
-/lib
-/types
-/utils
-/public
-```
+### Prerequisites
 
-## Getting Started
+- Node.js 18+
+- npm 10+
+
+### Install
 
 ```bash
 npm install
+```
+
+## Usage
+
+### Development
+
+```bash
 npm run dev
 ```
 
 Open http://localhost:3000 to view the app.
 
-## Environment
+### Build
+
+```bash
+npm run build
+```
+
+### Start (Production)
+
+```bash
+npm run start
+```
+
+### Lint
+
+```bash
+npm run lint
+```
+
+### Tests
+
+```bash
+npm run test
+```
+
+## Environment Variables
 
 Set a public base URL for metadata and sitemap:
 
-```
+```bash
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
-## Deployment (Vercel)
+## Commands
+
+| Command | Description |
+| --- | --- |
+| npm run dev | Start the local development server |
+| npm run build | Build the production app |
+| npm run start | Run the production server locally |
+| npm run lint | Run lint checks |
+| npm run test | Run unit tests |
+| npm run pages:build | Build for Cloudflare Workers (OpenNext) |
+
+## Deployment
+
+### Cloudflare Workers (OpenNext)
+
+1. Install dependencies.
+2. Build the worker bundle.
+3. Deploy using Wrangler or Cloudflare’s Git integration.
+
+```bash
+npm install
+npm run pages:build
+```
+
+### Vercel
 
 1. Push the repository to GitHub.
 2. Import the project in Vercel.
 3. Add the NEXT_PUBLIC_SITE_URL environment variable.
 4. Deploy with the default Next.js build settings.
 
-## Scripts
+## API Reference
 
-- npm run dev
-- npm run build
-- npm run start
-- npm run lint
+All endpoints are centralized in [quranApi.ts](file:///d:/#Github/Qim-Quran.v1/src/services/quranApi.ts) with typed responses and error handling. Core entry points:
 
-## Accessibility
+- getSurahList
+- getSurah
+- getSurahByEdition
+- getAyah
+- getAudio
+- searchQuran
 
-The UI is keyboard navigable with semantic components and high-contrast friendly colors. Arabic content uses a dedicated font family to improve readability.
+## Contributing
 
-## API Usage
+We follow the Contributor Covenant. By participating, you are expected to uphold this code of conduct.
 
-All endpoints are centralized in `src/services/quranApi.ts` with typed responses and error handling. The layer supports caching and retry logic for production resilience.
+### How to Contribute
+
+1. Fork the repo and create your branch: git checkout -b feature/your-feature
+2. Commit your changes: git commit -m "feat: add your feature"
+3. Push to the branch: git push origin feature/your-feature
+4. Open a pull request
+
+Read the Contributor Covenant Code of Conduct:
+https://www.contributor-covenant.org/version/2/1/code_of_conduct/
+
+## Changelog
+
+Release notes are published here:
+https://github.com/wal3fo/Qim-Quran.v1/releases
+
+## License
+
+This project is currently unlicensed. Contact the author for usage permissions.
+
+## Acknowledgements
+
+- https://alquran.cloud/ for the Quran API
+- https://nextjs.org/ for the framework
+- https://tailwindcss.com/ for styling
+
+## Author
+
+- GitHub: https://github.com/wal3fo

@@ -9,7 +9,7 @@ export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const retryCountsRef = useRef<Record<string, number>>({});
   const suppressPauseRef = useRef(false);
-  const transitionTimeoutRef = useRef<number | null>(null);
+  const transitionRef = useRef(false);
   const loadingReferenceRef = useRef<string | null>(null);
   const queue = usePlayerStore((state) => state.queue);
   const currentIndex = usePlayerStore((state) => state.currentIndex);
@@ -86,6 +86,7 @@ export default function AudioPlayer() {
         })
         .catch((error) => {
           console.error("Audio play failed", { reference: current.reference, error });
+          transitionRef.current = false;
           setStatus("error");
           setErrorMessage("Playback failed. Tap play to retry.");
         });
@@ -105,6 +106,7 @@ export default function AudioPlayer() {
         })
         .catch((error) => {
           console.error("Autoplay resume failed", { reference: current.reference, error });
+          transitionRef.current = false;
           setStatus("error");
           setErrorMessage("Playback failed. Tap play to retry.");
         });
@@ -206,12 +208,7 @@ export default function AudioPlayer() {
         onEnded={() => {
           console.info("Audio ended", { reference: current.reference });
           suppressPauseRef.current = true;
-          if (transitionTimeoutRef.current) {
-            window.clearTimeout(transitionTimeoutRef.current);
-          }
-          transitionTimeoutRef.current = window.setTimeout(() => {
-            suppressPauseRef.current = false;
-          }, 500);
+          transitionRef.current = true;
           next();
         }}
         onPlay={() => {
@@ -219,12 +216,10 @@ export default function AudioPlayer() {
           setStatus("idle");
           setErrorMessage(null);
           suppressPauseRef.current = false;
-          if (transitionTimeoutRef.current) {
-            window.clearTimeout(transitionTimeoutRef.current);
-          }
+          transitionRef.current = false;
         }}
         onPause={() => {
-          if (suppressPauseRef.current) {
+          if (suppressPauseRef.current || transitionRef.current) {
             return;
           }
           setPlaying(false);
@@ -246,12 +241,14 @@ export default function AudioPlayer() {
               audio.load();
               audio.play().catch((error) => {
                 console.error("Retry failed", { url, error });
+                transitionRef.current = false;
                 setStatus("error");
                 setErrorMessage("Unable to load audio. Please try again.");
               });
             }, 300 * (retries + 1));
             return;
           }
+          transitionRef.current = false;
           setStatus("error");
           setErrorMessage("Unable to load audio. Please try again.");
           console.error("Audio error after retries", { url });

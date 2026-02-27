@@ -4,13 +4,13 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) {
     return null;
   }
-  const nextTheme = theme === "dark" ? "light" : "dark";
+  const nextTheme = resolvedTheme === "dark" ? "light" : "dark";
   return (
     <button
       type="button"
@@ -18,7 +18,7 @@ export default function ThemeToggle() {
       className="rounded-full border border-zinc-300 px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-primary-500 hover:text-primary-700 dark:border-zinc-700 dark:text-zinc-200"
       aria-label="Toggle theme"
     >
-      {theme === "dark" ? "Dark" : "Light"}
+      {resolvedTheme === "dark" ? "Dark" : "Light"}
     </button>
   );
 }
