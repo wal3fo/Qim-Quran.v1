@@ -31,6 +31,10 @@ export const metadata: Metadata = {
   title: "Qim Quran",
   description: "A modern Quran web application with translations and recitations.",
   metadataBase: new URL(env.siteUrl),
+  icons: {
+    icon: "/favicon.ico",
+  },
+  manifest: "/manifest.json",
   alternates: {
     canonical: "/",
   },
