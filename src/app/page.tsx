@@ -5,7 +5,6 @@ import DailyAyahToggle from "@/components/DailyAyahToggle";
 import ReadingProgressSummary from "@/components/ReadingProgressSummary";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 const getDaySeed = () => {
   const now = new Date();

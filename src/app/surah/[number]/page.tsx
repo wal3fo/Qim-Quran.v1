@@ -6,7 +6,6 @@ import SeoJsonLd from "@/components/SeoJsonLd";
 type Params = Promise<{ number: string }>;
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export async function generateMetadata({ params }: { params: Params }) {
   const { number: numberStr } = await params;

@@ -7,7 +7,6 @@ export const metadata = {
 };
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export default async function RecitersPage() {
   const reciters = await getEditionsByFormat("audio", { revalidate: 86400 });
