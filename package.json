@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node ./scripts/dev.mjs",
     "build": "next build",
-    "pages:build": "node ./node_modules/@opennextjs/cloudflare/dist/cli/index.js",
+    "pages:build": "opennextjs-cloudflare build",
     "lint": "next lint"
   },
   "dependencies": {
