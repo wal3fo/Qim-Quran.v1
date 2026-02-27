@@ -1,11 +1,10 @@
 import { getAyah } from "@/services/quranApi";
 
-type Props = {
-  params: { reference: string };
-};
+type Params = Promise<{ reference: string }>;
 
-export async function generateMetadata({ params }: Props) {
-  const ayah = await getAyah(params.reference, { revalidate: 3600 });
+export async function generateMetadata({ params }: { params: Params }) {
+  const { reference } = await params;
+  const ayah = await getAyah(reference, { revalidate: 3600 });
   return {
     title: `Ayah ${ayah.surah.number}:${ayah.numberInSurah}`,
     description: ayah.text,
@@ -16,8 +15,9 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-export default async function AyahPage({ params }: Props) {
-  const ayah = await getAyah(params.reference, { revalidate: 3600 });
+export default async function AyahPage({ params }: { params: Params }) {
+  const { reference } = await params;
+  const ayah = await getAyah(reference, { revalidate: 3600 });
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col gap-8 px-4 py-12 sm:px-6">
       <header className="space-y-2">

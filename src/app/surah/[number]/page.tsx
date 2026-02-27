@@ -3,17 +3,16 @@ import { getSurah, getSurahList } from "@/services/quranApi";
 import SurahDetailClient from "@/components/SurahDetailClient";
 import SeoJsonLd from "@/components/SeoJsonLd";
 
-type Props = {
-  params: { number: string };
-};
+type Params = Promise<{ number: string }>;
 
 export async function generateStaticParams() {
   const surahs = await getSurahList({ revalidate: 86400 });
   return surahs.map((surah) => ({ number: String(surah.number) }));
 }
 
-export async function generateMetadata({ params }: Props) {
-  const number = Number(params.number);
+export async function generateMetadata({ params }: { params: Params }) {
+  const { number: numberStr } = await params;
+  const number = Number(numberStr);
   if (!Number.isFinite(number)) {
     return { title: "Surah" };
   }
@@ -26,8 +25,9 @@ export async function generateMetadata({ params }: Props) {
 
 export const revalidate = 3600;
 
-export default async function SurahDetailPage({ params }: Props) {
-  const number = Number(params.number);
+export default async function SurahDetailPage({ params }: { params: Params }) {
+  const { number: numberStr } = await params;
+  const number = Number(numberStr);
   if (!Number.isFinite(number)) {
     notFound();
   }

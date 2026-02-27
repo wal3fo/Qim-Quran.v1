@@ -8,12 +8,11 @@ export const size = {
 
 export const contentType = "image/png";
 
-type Props = {
-  params: { reference: string };
-};
+type Params = Promise<{ reference: string }>;
 
-export default async function OpenGraphImage({ params }: Props) {
-  const ayah = await getAyah(params.reference, { revalidate: 3600 });
+export default async function OpenGraphImage({ params }: { params: Params }) {
+  const { reference } = await params;
+  const ayah = await getAyah(reference, { revalidate: 3600 });
   return new ImageResponse(
     (
       <div
