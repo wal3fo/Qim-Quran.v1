@@ -11,6 +11,16 @@
   --font-arabic: var(--font-arabic);
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
 .dark {
   --background: #0a0a0a;
   --foreground: #ededed;

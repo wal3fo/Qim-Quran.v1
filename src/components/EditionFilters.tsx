@@ -24,7 +24,7 @@ export default function EditionFilters({
       <select
         value={language}
         onChange={(event) => onLanguageChange(event.target.value)}
-        className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-black"
+        className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500 dark:border-zinc-800 dark:bg-black"
       >
         <option value="all">All languages</option>
         {languages.map((lang) => (
@@ -36,7 +36,7 @@ export default function EditionFilters({
       <select
         value={format}
         onChange={(event) => onFormatChange(event.target.value)}
-        className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-black"
+        className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500 dark:border-zinc-800 dark:bg-black"
       >
         <option value="all">All formats</option>
         <option value="text">Text</option>
@@ -45,7 +45,7 @@ export default function EditionFilters({
       <select
         value={type}
         onChange={(event) => onTypeChange(event.target.value)}
-        className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-black"
+        className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500 dark:border-zinc-800 dark:bg-black"
       >
         <option value="all">All types</option>
         <option value="quran">Quran</option>

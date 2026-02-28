@@ -10,6 +10,7 @@ import DailyAyahNotifier from "@/components/DailyAyahNotifier";
 import ReadingModeClass from "@/components/ReadingModeClass";
 import HighContrastClass from "@/components/HighContrastClass";
 import FontScaleClass from "@/components/FontScaleClass";
+import LanguageClass from "@/components/LanguageClass";
 import { env } from "@/lib/env";
 
 const geistSans = Geist({
@@ -82,6 +83,7 @@ export default function RootLayout({
           <ReadingModeClass />
           <HighContrastClass />
           <FontScaleClass />
+          <LanguageClass />
         </Providers>
       </body>
     </html>

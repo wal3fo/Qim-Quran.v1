@@ -57,7 +57,7 @@ export default function JuzClient() {
         <select
           value={juzNumber}
           onChange={(event) => setJuzNumber(Number(event.target.value))}
-          className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-black"
+          className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500 dark:border-zinc-800 dark:bg-black"
         >
           {Array.from({ length: 30 }).map((_, index) => (
             <option key={index + 1} value={index + 1}>
@@ -70,7 +70,7 @@ export default function JuzClient() {
           onChange={(event) =>
             setSurahFilter(event.target.value === "all" ? "all" : Number(event.target.value))
           }
-          className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-black"
+          className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500 dark:border-zinc-800 dark:bg-black"
         >
           <option value="all">All Surahs</option>
           {surahOptions.map((surah) => (

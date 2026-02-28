@@ -46,12 +46,12 @@ export default function SurahListClient({ surahs }: Props) {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search surah name or number"
-          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm focus:border-primary-500 focus:outline-none dark:border-zinc-800 dark:bg-black"
+          className="w-full rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500 dark:border-zinc-800 dark:bg-black"
         />
         <select
           value={revelationType}
           onChange={(event) => setRevelationType(event.target.value as typeof revelationType)}
-          className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-800 dark:bg-black"
+          className="rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary-500 dark:border-zinc-800 dark:bg-black"
         >
           <option value="all">All</option>
           <option value="Meccan">Meccan</option>
@@ -62,20 +62,22 @@ export default function SurahListClient({ surahs }: Props) {
         {paged.map((surah) => (
           <div
             key={surah.number}
-            className="rounded-2xl border border-zinc-200 bg-white p-4 transition hover:border-primary-500 dark:border-zinc-800 dark:bg-zinc-950"
+            className="group relative rounded-2xl border border-zinc-200 bg-white p-4 transition-all duration-200 hover:border-primary-500 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-primary-400"
           >
             <div className="flex items-center justify-between">
               <Link
                 href={`/surah/${surah.number}`}
-                className="text-lg font-semibold text-zinc-900 dark:text-zinc-100"
+                className="text-lg font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-primary-600 dark:group-hover:text-primary-400"
               >
                 {surah.englishName}
               </Link>
-              <span className="text-sm text-zinc-500">{surah.number}</span>
+              <span className="rounded-lg bg-zinc-100 px-2 py-1 text-xs font-bold text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+                {surah.number}
+              </span>
             </div>
-            <p className="mt-2 text-sm text-zinc-500">{surah.englishNameTranslation}</p>
-            <div className="mt-3 flex items-center justify-between text-xs text-primary-600 dark:text-primary-300">
-              <span>
+            <p className="mt-2 text-sm text-zinc-500 line-clamp-1">{surah.englishNameTranslation}</p>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-xs font-medium text-zinc-400">
                 {surah.revelationType} • {surah.numberOfAyahs} Ayahs
               </span>
               <button
@@ -99,9 +101,12 @@ export default function SurahListClient({ surahs }: Props) {
                     return;
                   }
                 }}
-                className="rounded-full border border-primary-500 px-3 py-1 text-[10px] font-semibold text-primary-700 dark:text-primary-200"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-50 text-primary-600 transition-colors hover:bg-primary-600 hover:text-white dark:bg-primary-900/20 dark:text-primary-400 dark:hover:bg-primary-500 dark:hover:text-white active:scale-90"
+                aria-label={`Play ${surah.englishName}`}
               >
-                Quick Play
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
+                </svg>
               </button>
             </div>
           </div>
