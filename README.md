@@ -1,7 +1,4 @@
 # Qim Quran
-
-![Qim Quran Logo](https://raw.githubusercontent.com/wal3fo/Qim-Quran.v1/main/public/icon.svg)
-
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![Version](https://img.shields.io/badge/version-0.1.0-blue)
 ![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
