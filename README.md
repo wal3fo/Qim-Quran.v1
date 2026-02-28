@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Qim Quran - Modern Quran Web Application
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org/)
@@ -7,6 +8,13 @@
 [![License](https://img.shields.io/badge/License-Non--Profit-green)](https://github.com/wal3fo/Qim-Quran.v1#license)
 
 Qim Quran is a comprehensive, open-source web application designed for reading, listening, and studying the Holy Quran. Built with modern technologies like Next.js 16 and TypeScript, it offers a fast, accessible, and user-friendly experience across all devices.
+=======
+# Qim Quran
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Version](https://img.shields.io/badge/version-0.1.0-blue)
+![License](https://img.shields.io/badge/license-UNLICENSED-lightgrey)
+![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen)
+>>>>>>> 41ae8b4b0a44743a6121dbb0b544da0f331e60fa
 
 ---
 
