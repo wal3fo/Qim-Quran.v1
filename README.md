@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Qim Quran - Modern Quran Web Application
 
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js)](https://nextjs.org/)
