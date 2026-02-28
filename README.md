@@ -115,7 +115,7 @@ The project follows a modern **Modular Monolith** approach within a Next.js fram
 
 ### Deployment
 
-This project is configured for deployment on **Cloudflare Pages**. You can build the worker using:
+This project is configured for deployment on **Cloudflare Workers**. You can build the worker using:
 ```bash
 npm run worker:build
 ```
